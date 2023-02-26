@@ -6,13 +6,13 @@
             {% csrf_token %}
             <fieldset class="form-group text-center">
                 <legend class="border-bottom mb-3">
-                    <h3>Join Today</h3>
+                    <h4>Join Today</h4>
                 </legend>
             </fieldset>
             {{ form|crispy }}
-            <button type="submit" class="btn btn-primary btn-block mt-3">Register</button>
+            <button type="submit" class="btn btn-primary btn-block mt-3 border-0" style="background: #bca3fb">Register</button>
             <p class="small fw-bold mt-2 pt-1 mb-0">Already have an account? <a href="{% url 'login' %}"
-                                                                              class="link-success">Login</a></p>
+                                                                              class="text-decoration-none link-primary">Login</a></p>
         </form>
     {% endif %}
 {% endblock content %}
