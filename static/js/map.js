@@ -115,8 +115,24 @@ $("#my-button").click(function (event) {
     event.preventDefault();
     event.stopPropagation();
     $.ajax({
-        url: "https://photon.komoot.io/api/?q=india&limit=10&lang=en", success: function (result) {
-            console.log(result);
+        url: "https://photon.komoot.io/api/?q=india&limit=10&lang=en", success: function (t) {
+            t.features.map((function (t) {
+                console.log({
+                    lon: t.geometry.coordinates[0],
+                    lat: t.geometry.coordinates[1],
+                    address: {
+                        name: t.properties.name,
+                        postcode: t.properties.postcode,
+                        city: t.properties.city,
+                        state: t.properties.state,
+                        country: t.properties.country
+                    },
+                    original: {
+                        formatted: t.properties.name,
+                        details: t.properties
+                    }
+                })
+            }))
         }
-    });
+    })
 })
