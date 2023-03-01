@@ -59,9 +59,13 @@ let vectorSource = new ol.source.Vector(),
     };
 
 let map;
+let url_osrm_route = '//router.project-osrm.org/route/v1/driving/';
 let olview;
 let source_location;
 let destination_location;
+let source_location_marker;
+let destination_location_marker;
+let msg_el = $("#error_message");
 
 function create_map(map_center) {
     olview = new ol.View({
@@ -99,6 +103,39 @@ let utils = {
         vectorSource.addFeature(feature);
         utils.create_current_location_marker(current_location_coordinates);
     },
+    createRoute: function () {
+        //get the route
+        var source = source_location.join();
+        var destination = destination_location.join();
+
+        fetch(url_osrm_route + source + ';' + destination).then(function (r) {
+            return r.json();
+        }).then(function (json) {
+            if (json.code !== 'Ok') {
+                msg_el.innerHTML = 'No route found.';
+                return;
+            }
+            msg_el.innerHTML = 'Route added';
+            //points.length = 0;
+
+            let polyline = json.routes[0].geometry;
+            // route is ol.geom.LineString
+            var route = new ol.format.Polyline({
+                factor: 1e5
+            }).readGeometry(polyline, {
+                dataProjection: 'EPSG:4326',
+                featureProjection: 'EPSG:3857'
+            });
+            var feature = new ol.Feature({
+                type: 'route',
+                geometry: route
+            });
+            feature.setStyle(styles.route);
+            vectorSource.addFeature(feature);
+            console.log(polyline);
+            console.log(feature);
+        });
+    },
     create_current_location_marker: function (coord) {
         let feature = new ol.Feature({
             type: 'place',
@@ -106,17 +143,21 @@ let utils = {
         });
         feature.setStyle(styles.my_current_location_icon);
         vectorSource.addFeature(feature);
-    },
+    }
+
+    ,
     to4326: function (coord) {
         return ol.proj.transform([
             parseFloat(coord[0]), parseFloat(coord[1])
         ], 'EPSG:3857', 'EPSG:4326');
-    },
+    }
+    ,
     to3857: function (coord) {
         return ol.proj.transform([
             parseFloat(coord[0]), parseFloat(coord[1])
         ], 'EPSG:4326', 'EPSG:3857');
-    },
+    }
+    ,
 
     createSourceFeature: function (coord) {
         let feature = new ol.Feature({
@@ -125,11 +166,21 @@ let utils = {
         });
         feature.setStyle(styles.source_icon);
         vectorSource.clear();
+        source_location_marker = feature;
         vectorSource.addFeature(feature);
-        if(destination_location !== undefined)
+        if (destination_location !== undefined) {
             utils.createOnlyDestinationFeature(destination_location);
+            utils.createRoute();
+        }
+        map.getView().fit(vectorLayer.getSource().getExtent(), {
+            size: map.getSize(),
+            maxZoom: 16,
+            padding: [60, 60, 60, 60],
+            constrainResolution: false
+        });
         utils.create_current_location_marker(current_location_coordinates);
-    },
+    }
+    ,
     createDestinationFeature: function (coord) {
         let feature = new ol.Feature({
             type: 'place',
@@ -137,33 +188,48 @@ let utils = {
         });
         feature.setStyle(styles.icon);
         vectorSource.clear();
+        destination_location_marker = feature;
         vectorSource.addFeature(feature);
-        if(source_location !== undefined)
+        if (source_location !== undefined) {
             utils.createOnlySourceFeature(source_location);
+            utils.createRoute();
+        }
+        map.getView().fit(vectorLayer.getSource().getExtent(), {
+            size: map.getSize(),
+            maxZoom: 16,
+            padding: [60, 60, 60, 60],
+            constrainResolution: false
+        });
         utils.create_current_location_marker(current_location_coordinates);
-    },
+    }
+    ,
     createOnlySourceFeature: function (coord) {
         let feature = new ol.Feature({
             type: 'place',
             geometry: new ol.geom.Point(ol.proj.fromLonLat(coord))
         });
         feature.setStyle(styles.source_icon);
+        source_location_marker = feature;
         vectorSource.addFeature(feature);
-    },
+    }
+    ,
     createOnlyDestinationFeature: function (coord) {
         let feature = new ol.Feature({
             type: 'place',
             geometry: new ol.geom.Point(ol.proj.fromLonLat(coord))
         });
         feature.setStyle(styles.icon);
+        destination_location_marker = feature;
         vectorSource.addFeature(feature);
-    },
+    }
+    ,
 };
 
 getLocation()
 
 
-$("#source-search-button").click(function (event) {
+$("#source-search-button"
+).click(function (event) {
     event.preventDefault();
     event.stopPropagation();
     let input_destination = $("#source-search").val()
