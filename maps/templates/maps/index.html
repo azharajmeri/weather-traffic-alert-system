@@ -15,10 +15,12 @@
             --bs-dropdown-link-active-color: #000;
             --bs-dropdown-link-active-bg: #fff;
         }
-        .text-gray{
+
+        .text-gray {
             color: #a3a4a6;
         }
-        .text-gray:hover{
+
+        .text-gray:hover {
             cursor: text;
             color: #a3a4a6;
         }
@@ -27,9 +29,34 @@
             max-height: 40vh;
             overflow-y: scroll;
         }
+
         #destination-location-list {
             max-height: 40vh;
             overflow-y: scroll;
+        }
+
+        .alert-info-bg {
+            border-radius: 2px;
+            background: #F0F7FF;
+            border: 2px solid #D7E7FF;
+            cursor: pointer;
+        }
+
+        .style-1::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0);
+            border-radius: 10px;
+            background-color: #F5F5F5;
+        }
+
+        .style-1::-webkit-scrollbar {
+            width: 12px;
+            background-color: #F5F5F5;
+        }
+
+        .style-1::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            -webkit-box-shadow: inset 0 0 6px rgba(218, 218, 218, 0.3);
+            background-color: rgba(85, 85, 85, 0.1);
         }
     </style>
     <!-- OpenLayers CSS -->
@@ -60,7 +87,7 @@
                             </div>
                         </div>
                     </div>
-                    <div id="source-location-list"></div>
+                    <div id="source-location-list" class="style-1"></div>
                 </div>
             </div>
             <div class="dropdown">
@@ -80,8 +107,9 @@
                             </div>
                         </div>
                     </div>
-                    <div id="destination-location-list"></div>
+                    <div id="destination-location-list" class="style-1"></div>
                 </div>
+                <button id="start-animation">Stop Animation</button>
             </div>
             <div id="error_message"></div>
         </div>
@@ -130,4 +158,6 @@
     </script>
 
     <script src="{% static 'js/map.js' %}"></script>
+    <script src="{% static 'js/photon_search.js' %}"></script>
+    <script src="{% static 'js/traverse_route.js' %}"></script>
 {% endblock jsblock %}

@@ -1,4 +1,16 @@
 let current_location_coordinates;
+let map;
+let url_osrm_route = '//router.project-osrm.org/route/v1/driving/';
+let olview;
+let source_location;
+let destination_location;
+let source_location_marker;
+let destination_location_marker;
+let map_route;
+let msg_el = $("#error_message");
+let geoMarker;
+let position;
+
 
 function getLocation() {
     if (navigator.geolocation) {
@@ -56,16 +68,13 @@ let vectorSource = new ol.source.Vector(),
                 src: current_location_icon
             })
         }),
+        geoMarker: new ol.style.Style({
+            image: new ol.style.Icon({
+                anchor: [0.5, 1],
+                src: current_location_icon
+            })
+        }),
     };
-
-let map;
-let url_osrm_route = '//router.project-osrm.org/route/v1/driving/';
-let olview;
-let source_location;
-let destination_location;
-let source_location_marker;
-let destination_location_marker;
-let msg_el = $("#error_message");
 
 function create_map(map_center) {
     olview = new ol.View({
@@ -84,12 +93,11 @@ function create_map(map_center) {
         ],
     });
 
-    // map.on('click', function (evt) {
-    //     let coord4326 = utils.to4326(evt.coordinate);
-    //     utils.createFeature(coord4326);
-    //     $("#id_long").val(coord4326[0].toString().slice(0, 9));
-    //     $("#id_lat").val(coord4326[1].toString().slice(0, 9));
-    // });
+    map.on('click', function (evt) {
+        let coord4326 = utils.to4326(evt.coordinate);
+        // utils.createFeature(coord4326);
+        console.log(coord4326)
+    });
 }
 
 let utils = {
@@ -131,9 +139,15 @@ let utils = {
                 geometry: route
             });
             feature.setStyle(styles.route);
+            map_route = route
+            position = source_location_marker.getGeometry().clone()
+            geoMarker = new ol.Feature({
+                type: 'geoMarker',
+                geometry: position,
+            });
+            geoMarker.setStyle(styles.geoMarker);
+            vectorSource.addFeature(geoMarker);
             vectorSource.addFeature(feature);
-            console.log(polyline);
-            console.log(feature);
         });
     },
     create_current_location_marker: function (coord) {
@@ -226,70 +240,3 @@ let utils = {
 };
 
 getLocation()
-
-
-$("#source-search-button"
-).click(function (event) {
-    event.preventDefault();
-    event.stopPropagation();
-    let input_destination = $("#source-search").val()
-    $.ajax({
-        url: "https://photon.komoot.io/api/?q=" + input_destination + "&limit=10&lang=en", success: function (t) {
-            $("#source-location-list").html(``);
-            t.features.map((function (t) {
-                $("#source-location-list").append(`
-                    <div class="dropdown-divider"></div>
-                    <button class="dropdown-item" type="button" data-lon="${t.geometry.coordinates[0]}" data-lat="${t.geometry.coordinates[1]}" data-name="${t.properties.name}">
-                        ${t.properties.name}<br>
-                        postcode: ${t.properties.postcode}<br>
-                        city: ${t.properties.city}<br>
-                        state: ${t.properties.state}<br>
-                        country: ${t.properties.country}<br>
-                    </button>
-                `);
-            }));
-        }
-    });
-});
-
-
-$('#source-location-list').on('click', '.dropdown-item', function () {
-    source_location = [$(this).data('lon'), $(this).data('lat')];
-    map.getView().setCenter(ol.proj.transform(source_location, 'EPSG:4326', 'EPSG:3857'));
-    map.getView().setZoom(15);
-    utils.createSourceFeature(source_location);
-    $("#source-dropdownMenu").text($(this).data('name'))
-});
-
-
-$("#destination-search-button").click(function (event) {
-    event.preventDefault();
-    event.stopPropagation();
-    let input_destination = $("#destination-search").val()
-    $.ajax({
-        url: "https://photon.komoot.io/api/?q=" + input_destination + "&limit=10&lang=en", success: function (t) {
-            $("#destination-location-list").html(``);
-            t.features.map((function (t) {
-                $("#destination-location-list").append(`
-                    <div class="dropdown-divider"></div>
-                    <button class="dropdown-item" type="button" data-lon="${t.geometry.coordinates[0]}" data-lat="${t.geometry.coordinates[1]}" data-name="${t.properties.name}">
-                        ${t.properties.name}<br>
-                        postcode: ${t.properties.postcode}<br>
-                        city: ${t.properties.city}<br>
-                        state: ${t.properties.state}<br>
-                        country: ${t.properties.country}<br>
-                    </button>
-                `);
-            }));
-        }
-    });
-});
-
-
-$('#destination-location-list').on('click', '.dropdown-item', function () {
-    destination_location = [$(this).data('lon'), $(this).data('lat')];
-    map.getView().setCenter(ol.proj.transform(destination_location, 'EPSG:4326', 'EPSG:3857'));
-    map.getView().setZoom(15);
-    utils.createDestinationFeature(destination_location);
-    $("#destination-dropdownMenu").text($(this).data('name'));
-});
