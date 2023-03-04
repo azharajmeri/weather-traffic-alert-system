@@ -1,6 +1,8 @@
 let current_location_coordinates;
 let map;
-let url_osrm_route = '//router.project-osrm.org/route/v1/driving/';
+let url_osrm_route = 'https://router.project-osrm.org/route/v1/driving/';
+// let url_osrm_route = 'https://routing.openstreetmap.de/routed-bike/route/v1/driving/';  // Routing option 2
+let url_osrm_map_route = '//router.project-osrm.org/route/v1/driving/';
 let olview;
 let source_location;
 let destination_location;
@@ -8,8 +10,6 @@ let source_location_marker;
 let destination_location_marker;
 let map_route;
 let msg_el = $("#error_message");
-let geoMarker;
-let position;
 
 
 function getLocation() {
@@ -47,7 +47,12 @@ let vectorSource = new ol.source.Vector(),
     styles = {
         route: new ol.style.Style({
             stroke: new ol.style.Stroke({
-                width: 6, color: [40, 40, 40, 0.8]
+                width: 6, color: [60, 223, 225, 1]
+            })
+        }),
+        traffic_route: new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                width: 6, color: [255, 0, 0, 0.8]
             })
         }),
         icon: new ol.style.Style({
@@ -72,6 +77,49 @@ let vectorSource = new ol.source.Vector(),
             image: new ol.style.Icon({
                 anchor: [0.5, 1],
                 src: current_location_icon
+            })
+        }),
+
+        sun: new ol.style.Style({
+            image: new ol.style.Icon({
+                anchor: [0.5, 1],
+                src: sun
+            })
+        }),
+        cloudy: new ol.style.Style({
+            image: new ol.style.Icon({
+                anchor: [0.5, 1],
+                src: cloudy
+            })
+        }),
+        fog: new ol.style.Style({
+            image: new ol.style.Icon({
+                anchor: [0.5, 1],
+                src: fog
+            })
+        }),
+        wind: new ol.style.Style({
+            image: new ol.style.Icon({
+                anchor: [0.5, 1],
+                src: wind
+            })
+        }),
+        rain: new ol.style.Style({
+            image: new ol.style.Icon({
+                anchor: [0.5, 1],
+                src: rain
+            })
+        }),
+        snow: new ol.style.Style({
+            image: new ol.style.Icon({
+                anchor: [0.5, 1],
+                src: snow
+            })
+        }),
+        storm: new ol.style.Style({
+            image: new ol.style.Icon({
+                anchor: [0.5, 1],
+                src: storm
             })
         }),
     };
@@ -115,8 +163,10 @@ let utils = {
         //get the route
         var source = source_location.join();
         var destination = destination_location.join();
+        set_map_route()
+        features = []
 
-        fetch(url_osrm_route + source + ';' + destination).then(function (r) {
+        fetch(url_osrm_route + source + ';' + destination + '?overview=false&alternatives=true&steps=true').then(function (r) {
             return r.json();
         }).then(function (json) {
             if (json.code !== 'Ok') {
@@ -124,31 +174,42 @@ let utils = {
                 return;
             }
             msg_el.innerHTML = 'Route added';
-            //points.length = 0;
 
-            let polyline = json.routes[0].geometry;
-            // route is ol.geom.LineString
-            var route = new ol.format.Polyline({
-                factor: 1e5
-            }).readGeometry(polyline, {
-                dataProjection: 'EPSG:4326',
-                featureProjection: 'EPSG:3857'
+            json.routes[0].legs[0].steps.map(function (t) {
+                let polyline = t.geometry;
+                // route is ol.geom.LineString
+                var route = new ol.format.Polyline({
+                    factor: 1e5
+                }).readGeometry(polyline, {
+                    dataProjection: 'EPSG:4326',
+                    featureProjection: 'EPSG:3857'
+                });
+                var feature = new ol.Feature({
+                    type: 'route',
+                    geometry: route
+                });
+                feature.setStyle(styles.route);
+                features.push(feature);
             });
-            var feature = new ol.Feature({
+        }).then(function () {
+            let parser = new jsts.io.OL3Parser();
+            let union_result = parser.read(features[0].getGeometry());
+            features.slice(1, features.length - 1).map(function (feat) {
+                let current_feat = parser.read(feat.getGeometry());
+                union_result = union_result.union(current_feat);
+                let f = new ol.Feature({
+                    type: 'route',
+                    geometry: parser.write(union_result)
+                });
+                union_result = parser.read(f.getGeometry());
+            });
+            let feature = new ol.Feature({
                 type: 'route',
-                geometry: route
+                geometry: parser.write(union_result)
             });
             feature.setStyle(styles.route);
-            map_route = route
-            position = source_location_marker.getGeometry().clone()
-            geoMarker = new ol.Feature({
-                type: 'geoMarker',
-                geometry: position,
-            });
-            geoMarker.setStyle(styles.geoMarker);
-            vectorSource.addFeature(geoMarker);
             vectorSource.addFeature(feature);
-        });
+        })
     },
     create_current_location_marker: function (coord) {
         let feature = new ol.Feature({
@@ -240,3 +301,30 @@ let utils = {
 };
 
 getLocation()
+
+
+function set_map_route() {
+    //get the route
+    var source = source_location.join();
+    var destination = destination_location.join();
+
+    fetch(url_osrm_map_route + source + ';' + destination).then(function (r) {
+        return r.json();
+    }).then(function (json) {
+        if (json.code !== 'Ok') {
+            msg_el.innerHTML = 'No route found.';
+            return;
+        }
+        msg_el.innerHTML = 'Route added';
+        //points.length = 0;
+
+        let polyline = json.routes[0].geometry;
+        // route is ol.geom.LineString
+        map_route = new ol.format.Polyline({
+            factor: 1e5
+        }).readGeometry(polyline, {
+            dataProjection: 'EPSG:4326',
+            featureProjection: 'EPSG:3857'
+        });
+    });
+}

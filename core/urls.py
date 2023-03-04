@@ -15,7 +15,9 @@ urlpatterns = [
          auth_views.LoginView.as_view(template_name='users/login.html', redirect_authenticated_user=True),
          name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='users/logout.html'), name='logout'),
-    path('map/', maps_views.render_map, name='map')
+    path('map/', maps_views.render_map, name='map'),
+    path('about/', maps_views.about_page, name='about'),
+    path('map/<str:lat>/<str:long>/', maps_views.fetch_traffic_flow, name='fetch-traffic-speed'),
 ]
 
 if settings.DEBUG:
