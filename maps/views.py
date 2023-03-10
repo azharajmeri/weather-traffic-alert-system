@@ -14,13 +14,13 @@ def render_map(request):
 
 def fetch_traffic_flow(request, lat, long):
     try:
-        api_url = TOMTOM_API_URL.format(API_KEY=settings.TOMTOM_MAP_APIKEY, LAT=lat, LONG=long)
+        api_url = TOMTOM_API_URL.format(API_KEY=settings.TOMTOM_MAP_APIKEY+'a', LAT=lat, LONG=long)
         response = requests.get(api_url)
         json_result = response.json()
     except Exception:
         json_result = {
             'flowSegmentData': {
-                'currentSpeed': 40
+                'currentSpeed': 20
             }
         }
 

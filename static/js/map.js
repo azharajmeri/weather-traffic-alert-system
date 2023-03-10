@@ -166,49 +166,18 @@ let utils = {
         set_map_route()
         features = []
 
-        fetch(url_osrm_route + source + ';' + destination + '?overview=false&alternatives=true&steps=true').then(function (r) {
+        fetch("https://api.tomtom.com/routing/1/calculateRoute/\
+51.489781282368824,-0.4953619084322423:51.322840967165035,-0.4519033135884203/json?\
+instructionsType=text&language=en-US\
+&vehicleHeading=90&sectionType=traffic\
+&report=effectiveSettings&routeType=eco\
+&traffic=true&avoid=unpavedRoads\
+&travelMode=car&vehicleMaxSpeed=120\
+&vehicleCommercial=false&vehicleEngineType=combustion\
+&key=BxcdOf71w25PiGF7okaiVl4DiuW6qQUc").then(function (r) {
             return r.json();
         }).then(function (json) {
-            if (json.code !== 'Ok') {
-                msg_el.innerHTML = 'No route found.';
-                return;
-            }
-            msg_el.innerHTML = 'Route added';
-
-            json.routes[0].legs[0].steps.map(function (t) {
-                let polyline = t.geometry;
-                // route is ol.geom.LineString
-                var route = new ol.format.Polyline({
-                    factor: 1e5
-                }).readGeometry(polyline, {
-                    dataProjection: 'EPSG:4326',
-                    featureProjection: 'EPSG:3857'
-                });
-                var feature = new ol.Feature({
-                    type: 'route',
-                    geometry: route
-                });
-                feature.setStyle(styles.route);
-                features.push(feature);
-            });
-        }).then(function () {
-            let parser = new jsts.io.OL3Parser();
-            let union_result = parser.read(features[0].getGeometry());
-            features.slice(1, features.length - 1).map(function (feat) {
-                let current_feat = parser.read(feat.getGeometry());
-                union_result = union_result.union(current_feat);
-                let f = new ol.Feature({
-                    type: 'route',
-                    geometry: parser.write(union_result)
-                });
-                union_result = parser.read(f.getGeometry());
-            });
-            let feature = new ol.Feature({
-                type: 'route',
-                geometry: parser.write(union_result)
-            });
-            feature.setStyle(styles.route);
-            vectorSource.addFeature(feature);
+            create_route(json.routes[0].legs[0].points, json.routes[0].sections)
         })
     },
     create_current_location_marker: function (coord) {

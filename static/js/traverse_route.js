@@ -23,6 +23,7 @@ function moveFeature(event) {
     }
     if (distance < 0.9 && flag){
         stopAnimation()
+        flag = false;
     }
     const currentCoordinate_to4326 = utils.to4326(currentCoordinate)
     fetch_traffic_speed(currentCoordinate_to4326[1], currentCoordinate_to4326[0], distance)
