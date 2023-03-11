@@ -1,14 +1,10 @@
 let current_location_coordinates;
 let map;
-let url_osrm_route = 'https://router.project-osrm.org/route/v1/driving/';
-// let url_osrm_route = 'https://routing.openstreetmap.de/routed-bike/route/v1/driving/';  // Routing option 2
-let url_osrm_map_route = '//router.project-osrm.org/route/v1/driving/';
 let olview;
 let source_location;
 let destination_location;
 let source_location_marker;
 let destination_location_marker;
-let map_route;
 let msg_el = $("#error_message");
 
 
@@ -161,23 +157,14 @@ let utils = {
     },
     createRoute: function () {
         //get the route
-        var source = source_location.join();
-        var destination = destination_location.join();
-        set_map_route()
+        var source = `${source_location[1]},${source_location[0]}`;
+        var destination = `${destination_location[1]},${destination_location[0]}`;
         features = []
-
-        fetch("https://api.tomtom.com/routing/1/calculateRoute/\
-51.489781282368824,-0.4953619084322423:51.322840967165035,-0.4519033135884203/json?\
-instructionsType=text&language=en-US\
-&vehicleHeading=90&sectionType=traffic\
-&report=effectiveSettings&routeType=eco\
-&traffic=true&avoid=unpavedRoads\
-&travelMode=car&vehicleMaxSpeed=120\
-&vehicleCommercial=false&vehicleEngineType=combustion\
-&key=BxcdOf71w25PiGF7okaiVl4DiuW6qQUc").then(function (r) {
+        const api_url = "/map/" + source + "/" + destination + "/"
+        fetch(api_url).then(function (r) {
             return r.json();
         }).then(function (json) {
-            create_route(json.routes[0].legs[0].points, json.routes[0].sections)
+            create_route(json.points, json.sections, json['details'])
         })
     },
     create_current_location_marker: function (coord) {
@@ -194,14 +181,12 @@ instructionsType=text&language=en-US\
         return ol.proj.transform([
             parseFloat(coord[0]), parseFloat(coord[1])
         ], 'EPSG:3857', 'EPSG:4326');
-    }
-    ,
+    },
     to3857: function (coord) {
         return ol.proj.transform([
             parseFloat(coord[0]), parseFloat(coord[1])
         ], 'EPSG:4326', 'EPSG:3857');
-    }
-    ,
+    },
 
     createSourceFeature: function (coord) {
         let feature = new ol.Feature({
@@ -223,8 +208,7 @@ instructionsType=text&language=en-US\
             constrainResolution: false
         });
         utils.create_current_location_marker(current_location_coordinates);
-    }
-    ,
+    },
     createDestinationFeature: function (coord) {
         let feature = new ol.Feature({
             type: 'place',
@@ -245,8 +229,7 @@ instructionsType=text&language=en-US\
             constrainResolution: false
         });
         utils.create_current_location_marker(current_location_coordinates);
-    }
-    ,
+    },
     createOnlySourceFeature: function (coord) {
         let feature = new ol.Feature({
             type: 'place',
@@ -255,8 +238,7 @@ instructionsType=text&language=en-US\
         feature.setStyle(styles.source_icon);
         source_location_marker = feature;
         vectorSource.addFeature(feature);
-    }
-    ,
+    },
     createOnlyDestinationFeature: function (coord) {
         let feature = new ol.Feature({
             type: 'place',
@@ -265,35 +247,7 @@ instructionsType=text&language=en-US\
         feature.setStyle(styles.icon);
         destination_location_marker = feature;
         vectorSource.addFeature(feature);
-    }
-    ,
+    },
 };
 
 getLocation()
-
-
-function set_map_route() {
-    //get the route
-    var source = source_location.join();
-    var destination = destination_location.join();
-
-    fetch(url_osrm_map_route + source + ';' + destination).then(function (r) {
-        return r.json();
-    }).then(function (json) {
-        if (json.code !== 'Ok') {
-            msg_el.innerHTML = 'No route found.';
-            return;
-        }
-        msg_el.innerHTML = 'Route added';
-        //points.length = 0;
-
-        let polyline = json.routes[0].geometry;
-        // route is ol.geom.LineString
-        map_route = new ol.format.Polyline({
-            factor: 1e5
-        }).readGeometry(polyline, {
-            dataProjection: 'EPSG:4326',
-            featureProjection: 'EPSG:3857'
-        });
-    });
-}
