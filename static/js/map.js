@@ -57,6 +57,12 @@ let vectorSource = new ol.source.Vector(),
                 src: icon_url
             })
         }),
+        checkpoint_icon: new ol.style.Style({
+            image: new ol.style.Icon({
+                anchor: [0.5, 1],
+                src: checkpoint_url
+            })
+        }),
         source_icon: new ol.style.Style({
             image: new ol.style.Icon({
                 anchor: [0.5, 1],

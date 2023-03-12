@@ -9,10 +9,15 @@ function divideRange(n) {
     return result;
 }
 
-function makeCheckpoints(checkpoints_distance, lineString){
-    for(let i = 0; i < checkpoints_distance.length; i++) {
-        console.log(lineString.getCoordinateAt(checkpoints_distance[i]));
-        // https://stackoverflow.com/questions/62358299/openlayers-6-marker-popup-without-nodejs
+function makeCheckpoints(checkpoints_distance, lineString) {
+    for (let i = 0; i < checkpoints_distance.length; i++) {
+        const Coordinate = lineString.getCoordinateAt(checkpoints_distance[i]);
+        const coordinate_to4326 = utils.to4326(Coordinate);
+        if (i === 0 || i === 1)
+            start_end_flag = true
+        else
+            start_end_flag = false
+        fetch_weather(coordinate_to4326[1], coordinate_to4326[0], start_end_flag);
     }
 }
 
@@ -32,8 +37,11 @@ function create_route(data, sections, details) {
     const feature = new ol.Feature(lineString);
     feature.setStyle(styles.route);
 
-    checkpoints_distance = divideRange( Math.floor(details.lengthInMeters / 1000))
-    makeCheckpoints(checkpoints_distance, lineString)
+    let checkpoint_count = Math.floor(details.lengthInMeters / 2000);
+    if (checkpoint_count < 3)
+        checkpoint_count = 3
+    let checkpoints_distance = divideRange(checkpoint_count);
+    makeCheckpoints(checkpoints_distance, lineString);
 
     vectorSource.addFeature(feature);
 

@@ -17,7 +17,8 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(template_name='users/logout.html'), name='logout'),
     path('map/', maps_views.render_map, name='map'),
     path('about/', maps_views.about_page, name='about'),
-    path('map/<str:start>/<str:destination>/', maps_views.fetch_traffic_flow, name='fetch-traffic-speed'),
+    path('map/<str:start>/<str:destination>/', maps_views.fetch_route_with_traffic, name='fetch-route-with-traffic'),
+    path('map/weather/<str:lat>/<str:long>/', maps_views.fetch_weather, name='fetch-weather'),
 ]
 
 if settings.DEBUG:
