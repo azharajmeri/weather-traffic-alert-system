@@ -33,7 +33,7 @@ function showError(error) {
         case error.UNKNOWN_ERROR:
             break;
     }
-    create_map([8078795.833261827, 2632691.5825704993]);
+    create_map(-100.00641136532026, 36.795101535982695);
 }
 
 let vectorSource = new ol.source.Vector(),
@@ -126,10 +126,29 @@ let vectorSource = new ol.source.Vector(),
         }),
     };
 
+function createStyle({textAlign, justify, route_length, route_time}) {
+    return new ol.style.Style({
+        text: new ol.style.Text({
+            font: '16px sans-serif',
+            textAlign,
+            justify,
+            text:
+                `Distance: ${route_length}\nTime: ${route_time}`,
+            fill: new ol.style.Fill({
+                color: [255, 255, 255, 1],
+            }),
+            backgroundFill: new ol.style.Fill({
+                color: [168, 50, 153, 0.6],
+            }),
+            padding: [2, 2, 2, 2],
+        }),
+    });
+}
+
 function create_map(map_center) {
     olview = new ol.View({
         center: map_center,
-        zoom: 15
+        zoom: 6
     });
 
     map = new ol.Map({
@@ -159,7 +178,7 @@ let utils = {
         feature.setStyle(styles.icon);
         vectorSource.clear();
         vectorSource.addFeature(feature);
-        utils.create_current_location_marker(current_location_coordinates);
+        // utils.create_current_location_marker(current_location_coordinates);
     },
     createRoute: function () {
         //get the route
@@ -213,7 +232,7 @@ let utils = {
             padding: [60, 60, 60, 60],
             constrainResolution: false
         });
-        utils.create_current_location_marker(current_location_coordinates);
+        // utils.create_current_location_marker(current_location_coordinates);
     },
     createDestinationFeature: function (coord) {
         let feature = new ol.Feature({
@@ -234,7 +253,7 @@ let utils = {
             padding: [60, 60, 60, 60],
             constrainResolution: false
         });
-        utils.create_current_location_marker(current_location_coordinates);
+        // utils.create_current_location_marker(current_location_coordinates);
     },
     createOnlySourceFeature: function (coord) {
         let feature = new ol.Feature({
@@ -256,4 +275,7 @@ let utils = {
     },
 };
 
-getLocation()
+// geolLocation function requires location permission
+// getLocation()
+
+create_map(utils.to3857([-100.00641136532026, 36.795101535982695]));

@@ -13,10 +13,7 @@ function makeCheckpoints(checkpoints_distance, lineString) {
     for (let i = 0; i < checkpoints_distance.length; i++) {
         const Coordinate = lineString.getCoordinateAt(checkpoints_distance[i]);
         const coordinate_to4326 = utils.to4326(Coordinate);
-        if (i === 0 || i === 1)
-            start_end_flag = true
-        else
-            start_end_flag = false
+        start_end_flag = i === 0 || i === checkpoints_distance.length-1;
         fetch_weather(coordinate_to4326[1], coordinate_to4326[0], start_end_flag);
     }
 }
@@ -37,12 +34,6 @@ function create_route(data, sections, details) {
     const feature = new ol.Feature(lineString);
     feature.setStyle(styles.route);
 
-    let checkpoint_count = Math.floor(details.lengthInMeters / 2000);
-    if (checkpoint_count < 3)
-        checkpoint_count = 3
-    let checkpoints_distance = divideRange(checkpoint_count);
-    makeCheckpoints(checkpoints_distance, lineString);
-
     vectorSource.addFeature(feature);
 
     const subArrays = excludedRanges.map(range => {
@@ -62,4 +53,26 @@ function create_route(data, sections, details) {
 
         vectorSource.addFeature(traffic_feature);
     });
+
+    // Adding checkpoints
+    let checkpoint_count = Math.floor(details.lengthInMeters / 2000);
+    if (checkpoint_count < 3)
+        checkpoint_count = 3
+    let checkpoints_distance = divideRange(checkpoint_count);
+    makeCheckpoints(checkpoints_distance, lineString);
+
+    const center_coordinates = lineString.getCoordinateAt(0.5);
+    const center_coordinate_to4326 = utils.to4326(center_coordinates);
+    const route_time_and_distance_feature = new ol.Feature({
+        geometry: new ol.geom.Point(center_coordinates),
+    });
+
+    let route_time_and_distance_style = createStyle({
+        textAlign: 'left',
+        justify: 'center',
+        route_length: (details.lengthInMeters / 1000) + 'KM',
+        route_time: (details.travelTimeInSeconds / 3600).toFixed(2) + 'Hours'
+    });
+    route_time_and_distance_feature.setStyle(route_time_and_distance_style);
+    vectorSource.addFeature(route_time_and_distance_feature);
 }
