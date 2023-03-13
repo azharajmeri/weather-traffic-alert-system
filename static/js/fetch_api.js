@@ -42,9 +42,9 @@ function get_weather_mark(weather_code) {
 }
 
 function getTrafficLevel(number) {
-  if (number >= 50) {
+  if (number >= 40) {
     return "Low traffic";
-  } else if (number >= 25) {
+  } else if (number <= 40 && number >= 35) {
     return "Medium traffic";
   } else {
     return "High traffic";

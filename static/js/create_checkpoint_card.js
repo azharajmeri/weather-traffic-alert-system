@@ -1,4 +1,12 @@
 function create_alert_card(city, place_name, temp, description, traffic, weather_mark, weather_info) {
+    const current_date = new Date();
+    const date_time = current_date.getDate() + "/"
+        + (current_date.getMonth() + 1) + "/"
+        + current_date.getFullYear() + " @ "
+        + current_date.getHours() + ":"
+        + current_date.getMinutes() + ":"
+        + current_date.getSeconds();
+
     const card = document.createElement('div');
     card.classList.add('m-2');
 
@@ -20,6 +28,10 @@ function create_alert_card(city, place_name, temp, description, traffic, weather
     const placeName = document.createElement('small');
     placeName.classList.add('card-text', 'text-white', 'font-light');
     placeName.textContent = place_name;
+
+    const dateTime = document.createElement('h6');
+    dateTime.classList.add('card-text', 'text-success', 'font-light');
+    dateTime.textContent = date_time;
 
     const cardBody = document.createElement('div');
     cardBody.classList.add('card-body', 'weather-small');
@@ -72,6 +84,7 @@ function create_alert_card(city, place_name, temp, description, traffic, weather
     tempCol.appendChild(tempWrapper);
     tempWrapper.appendChild(tempIcon);
     tempWrapper.appendChild(tempInfo);
+    tempInfo.appendChild(dateTime);
     tempInfo.appendChild(tempValue);
     tempInfo.appendChild(trafficValue);
     tempInfo.appendChild(tempDescription);

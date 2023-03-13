@@ -26,7 +26,7 @@ class UserUpdateForm(forms.ModelForm):
 
     def clean(self):
         # data from the form is fetched using super function
-        super(ProfilePhoneNumberForm, self).clean()
+        super(UserUpdateForm, self).clean()
 
         # extract the username and text field from the data
         username = self.cleaned_data.get('username')

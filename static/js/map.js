@@ -288,3 +288,9 @@ let utils = {
 // getLocation()
 
 create_map(utils.to3857([-100.00641136532026, 36.795101535982695]));
+
+
+var intervalId = window.setInterval(function(){
+    if (destination_location !== undefined && source_location !== undefined)
+        utils.createRoute()
+}, 50000);
