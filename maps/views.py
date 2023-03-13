@@ -41,6 +41,7 @@ def fetch_weather(request, lat, long):
         weather_url = API_OPEN_METEO_URL.format(LAT=lat, LONG=long)
         weather_response = requests.get(weather_url)
         weather_json_result = weather_response.json()
+        print(weather_json_result)
     except Exception as e:
         print(e)
         weather_json_result = {
@@ -60,6 +61,8 @@ def fetch_weather(request, lat, long):
         api_url = TOMTOM_TRAFFIC_API_URL.format(API_KEY=settings.TOMTOM_MAP_APIKEY, LAT=lat, LONG=long)
         response = requests.get(api_url)
         json_result = response.json()
+        if response.status_code != 200:
+            raise Exception
     except Exception as e:
         print(e)
         json_result = {

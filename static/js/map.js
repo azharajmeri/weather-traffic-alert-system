@@ -126,6 +126,15 @@ let vectorSource = new ol.source.Vector(),
         }),
     };
 
+function createWeatherMarker(src) {
+    return new ol.style.Style({
+        image: new ol.style.Icon({
+            anchor: [0.5, 1],
+            src: src
+        })
+    });
+}
+
 function createStyle({textAlign, justify, route_length, route_time}) {
     return new ol.style.Style({
         text: new ol.style.Text({

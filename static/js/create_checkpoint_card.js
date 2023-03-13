@@ -44,7 +44,7 @@ function create_alert_card(city, place_name, temp, description, traffic, weather
     tempValue.classList.add('font-light', 'text-info', 'm-b-0');
     tempValue.innerHTML = `${temp}<sup>o</sup>`;
 
-    const trafficValue = document.createElement('h3');
+    const trafficValue = document.createElement('h4');
     trafficValue.classList.add('font-light', 'text-warning', 'm-b-0');
     trafficValue.innerHTML = traffic;
 
@@ -58,8 +58,7 @@ function create_alert_card(city, place_name, temp, description, traffic, weather
     tonightValue.classList.add('font-light', 'm-b-0');
     tonightValue.innerHTML = `<img src="${weather_mark}" />`;
 
-    const tonightDescription = document.createElement('h4');
-    tonightDescription.classList.add('font-light', 'text-info', 'm-b-0');
+    const tonightDescription = document.createElement('small');
     tonightDescription.textContent = `${weather_info}`;
 
     card.appendChild(innerCard);
