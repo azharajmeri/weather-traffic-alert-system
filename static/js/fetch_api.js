@@ -42,6 +42,7 @@ function get_weather_mark(weather_code) {
 }
 
 function getTrafficLevel(number) {
+    console.log(number)
     if (number >= 30) {
         return "Low traffic";
     } else if (number <= 29 && number >= 20) {

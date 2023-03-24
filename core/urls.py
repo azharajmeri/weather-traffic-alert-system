@@ -7,6 +7,7 @@ from users import views as users_views
 from maps import views as maps_views
 
 urlpatterns = [
+    path('', maps_views.render_map, name='map'),
     path('admin/', admin.site.urls),
     path('home/', users_views.home, name='users-home'),
     path('profile/', users_views.profile, name='profile'),
