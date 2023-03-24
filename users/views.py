@@ -8,11 +8,10 @@ from .models import Profile
 
 @login_required
 def home(request):
-    return render(request, "users/home.html")
+    return redirect('map')
 
 
 def register(request):
-    print(request.POST)
     if request.user.is_authenticated:
         return redirect('users-home')
     context = {}

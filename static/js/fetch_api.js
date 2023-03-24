@@ -38,15 +38,15 @@ function set_weather_mark_with_checkpoint(lat, long, weather_marker_src, start_e
 
 function get_weather_mark(weather_code) {
     const weather_condtion = get_weather_code[weather_code];
-    return { 'marker': weather_condtion['src'], "message": weather_condtion['description']}
+    return {'marker': weather_condtion['src'], "message": weather_condtion['description']}
 }
 
 function getTrafficLevel(number) {
-  if (number >= 40) {
-    return "Low traffic";
-  } else if (number <= 40 && number >= 35) {
-    return "Medium traffic";
-  } else {
-    return "High traffic";
-  }
+    if (number >= 30) {
+        return "Low traffic";
+    } else if (number <= 29 && number >= 20) {
+        return "Medium traffic";
+    } else {
+        return "High traffic";
+    }
 }
