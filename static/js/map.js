@@ -5,7 +5,6 @@ let source_location;
 let destination_location;
 let source_location_marker;
 let destination_location_marker;
-let msg_el = $("#error_message");
 
 
 function getLocation() {
